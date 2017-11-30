@@ -142,12 +142,12 @@ Notifier.prototype.processors.push = function( payload ) {
     var type = raw.push.changes[0]['new'].type; // eg "branch"
     var branchName = raw.push.changes[0]['new'].name; // eg "master"
     if (type === "branch") {
-      data.branch = "head/" + branchName;
+      data.branch = "heads/" + branchName;
     } else {
       throw new Error("have not gotten around to figuring out where tag is in the bitbucket push data");
     }
     return {
-      postfix: branchName,
+      postfix: "heads/" + branchName,
       data: data
     };
   }
