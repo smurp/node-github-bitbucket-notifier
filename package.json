@@ -1,6 +1,8 @@
 {
   "author": "Shawn Murphy <smurp@smurp.com> (http://smurp.com)",
-  "contributors": ["Scott González <scott.gonzalez@gmail.com> (http://scottgonzalez.com)"],
+  "contributors": [
+    "Scott González <scott.gonzalez@gmail.com> (http://scottgonzalez.com)"
+  ],
   "name": "node-github-bitbucket-notifier",
   "description": "Listen for GitHub or BitBucket updates using an EventEmitter.",
   "version": "0.0.1",
