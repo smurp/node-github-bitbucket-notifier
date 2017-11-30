@@ -134,23 +134,39 @@ Notifier.prototype.processors.pull_request = function( payload ) {
 };
 
 Notifier.prototype.processors.push = function( payload ) {
-	var raw = payload.data;
-	var refParts = raw.ref.split( "/" );
-	var type = refParts[ 1 ];
+  var raw = payload.data;
+  if (! raw.ref) { // bitbucket
+    var data = {
+      commit: raw.push.changes[0]['new'].target.hash, // eg "6396a9989fd192f34eb4e471bb35c0f3b2ac0b3d"
+    };
+    var type = raw.push.changes[0]['new'].type; // eg "branch"
+    var branchName raw.push.changes[0]['new'].name; // eg "master"
+    if (type === "branch") {
+      data.branch = "head/" + branchName;
+    } else {
+      throw new Error("have not gotten around to figuring out where tag is in the bitbucket push data");
+    }
+    return {
+      postfix: branchName,
+      data: data
+    };
+  }
+  var refParts = raw.ref.split( "/" );
+  var type = refParts[ 1 ];
 
-	var data = { commit: raw.after };
+  var data = { commit: raw.after };
 
-	if ( type === "heads" ) {
-		// Handle namespaced branches
-		data.branch = refParts.slice( 2 ).join( "/" );
-	} else if ( type === "tags" ) {
-		data.tag = refParts[ 2 ];
-	}
+  if ( type === "heads" ) {
+    // Handle namespaced branches
+    data.branch = refParts.slice( 2 ).join( "/" );
+  } else if ( type === "tags" ) {
+    data.tag = refParts[ 2 ];
+  }
 
-	return {
-		postfix: raw.ref.substr( 5 ),
-		data: data
-	};
+  return {
+    postfix: raw.ref.substr( 5 ), // eg ref="refs/head/alpha" so "head/alpha"
+    data: data
+  };
 };
 
 exports.Notifier = Notifier;
