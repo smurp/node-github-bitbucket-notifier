@@ -64,32 +64,50 @@ Notifier.prototype.handler = function( request, response ) {
 };
 
 Notifier.prototype.process = function( payload ) {
-	var eventType = payload.headers.githubEvent;
+  var eventType = payload.headers.githubEvent;
+  var eventServer;
+  if (eventType) {
+    eventServer = 'github';
+  } else {
+    if (payload.headers.eventKey == 'repo:push') {
+      eventServer = 'bitbucket';
+      eventType = 'push';
+    } else {
+      console.log("eventKey",payload.headers.eventKey);
+      return;
+    }
+  }
 
-	// Ignore ping events that are sent when a new webhook is created
-	if ( eventType === "ping" ) {
-		return;
-	}
+  // Ignore ping events that are sent when a new webhook is created
+  if ( eventType === "ping" ) {
+    return;
+  }
 
-	// Handle event-specific processing
-	var processor = this.processors[ eventType ] || this.processors._default;
-	var eventInfo = processor( payload );
-	var event = eventInfo.data;
-	var prefix = eventInfo.prefix;
+  // Handle event-specific processing
+  var processor = this.processors[ eventType ] || this.processors._default;
+  var eventInfo = processor( payload );
+  var event = eventInfo.data;
+  var prefix = eventInfo.prefix;
 
-	// Handle common properties
-	var repository = payload.data.repository;
-	event.type = eventType;
-	event.owner = repository.owner.login || repository.owner.name;
-	event.repo = repository.name;
-	event.payload = payload.data;
-
-	// Emit event rooted on the owner/repo
-	var eventName = event.owner + "/" + event.repo + "/" + event.type;
-	if ( eventInfo.postfix ) {
-		eventName += "/" + eventInfo.postfix;
-	}
-	this.emit( eventName, event );
+  var repository = payload.data.repository;
+  event.type = eventType;
+  event.source = eventServer;
+  if (eventServer == 'bitbucket') {
+    event.repo = repository.name;
+    event.owner = repository.owner.username;
+    event.payload = payload.data;
+  }
+  if (eventServer == 'github') {
+    event.owner = repository.owner.login || repository.owner.name;
+    event.repo = repository.name;
+    event.payload = payload.data;
+  }
+  // emit event rooted on the owner/repo
+  var eventName = event.owner + "/" + event.repo + "/" + event.type;
+  if ( eventInfo.postfix ) {
+    eventName += "/" + eventInfo.postfix;
+  }
+  this.emit( eventName, event );
 };
 
 Notifier.prototype.processors = {};
