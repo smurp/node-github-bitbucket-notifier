@@ -140,7 +140,7 @@ Notifier.prototype.processors.push = function( payload ) {
       commit: raw.push.changes[0]['new'].target.hash, // eg "6396a9989fd192f34eb4e471bb35c0f3b2ac0b3d"
     };
     var type = raw.push.changes[0]['new'].type; // eg "branch"
-    var branchName raw.push.changes[0]['new'].name; // eg "master"
+    var branchName = raw.push.changes[0]['new'].name; // eg "master"
     if (type === "branch") {
       data.branch = "head/" + branchName;
     } else {
