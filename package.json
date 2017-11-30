@@ -9,12 +9,7 @@
     "type": "git",
     "url": "git://github.com/smurp/node-github-bitbucket-notifier.git"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://www.opensource.org/licenses/MIT"
-    }
-  ],
+  "license": "MIT",
   "dependencies": {
     "eventemitter2": "0.4.14"
   }
